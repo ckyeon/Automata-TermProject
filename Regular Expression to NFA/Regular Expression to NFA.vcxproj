@@ -140,7 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Regular Expression to NFA.cpp" />
-    <ClCompile Include="String acceptance module.cpp" />
+    <ClCompile Include="String acceptance module.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

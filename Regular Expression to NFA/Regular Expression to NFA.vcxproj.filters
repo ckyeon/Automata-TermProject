@@ -18,8 +18,8 @@
     <ClCompile Include="Regular Expression to NFA.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="String acceptance module.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="String acceptance module.h">
+      <Filter>헤더 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
