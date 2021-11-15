@@ -304,13 +304,17 @@ void Re_to_NFA(string converted_Input_String)
 }
 
 void acceptance_Test() {
+	// NFA table
 	struct nfaTable table = nfaStack[top];
+
+	// 갈 수 있는 Node를 기록하는 dat 배열
 	int* dat{ new int[table.numOfNode] {} };
 	
+	// 입력할 String
 	string test_String;
 	cin >> test_String;
 
-	// 0 staate의 lambda-closure
+	// 0 staate의 lambda-closure 기록
 	dat[0] = 1;
 	for (int i = 0; i < table.numOfNode; i++)
 	{
@@ -331,16 +335,20 @@ void acceptance_Test() {
 	printf("\n-----------------------------------------");
 	print_Closure(dat);
 
+	// initial state로의 edge 제거
 	dat[0] = 0;
 	for (int j = 0; j < test_String.length(); j++)
 	{
+		// dat의 값이 바뀌며 방문해야 할 곳을 못하는 경우를 방지
 		int* buffer{ new int[table.numOfNode] {} };
 
 		for (int i = 0; i < table.numOfNode; i++)
 			buffer[i] = dat[i];
 
+		// nfa table을 돌며 방문할 수 있는 곳 buffer에 기록
 		for (int i = 0; i < table.numOfNode; i++)
 		{
+			// 방문하지 못하는 state는 continue
 			if (dat[i] == 0 && buffer[i] == 0)
 				continue;
 
@@ -366,18 +374,18 @@ void acceptance_Test() {
 			if (j == 0)
 				continue;
 
+			// 상태가 바뀌며 갈 수 없게된 곳 제거
 			if (test_String[j - 1] == 'a' && test_String[j] == 'b')
 				if (a != -1)
 					buffer[a] = 0;
 
-			if (j == 3 && b == 9)
-				int i = 5;
-
+			// 상태가 바뀌며 갈 수 없게된 곳 제거
 			if (test_String[j - 1] == 'b' && test_String[j] == 'a')
 				if (b != -1)
 					buffer[b] = 0;
 		}
 	
+		// buffer에 기록뒨 Closure dat에 기록
 		for (int i = 0; i < table.numOfNode; i++)
 		{
 			dat[i] = buffer[i];
@@ -390,6 +398,7 @@ void acceptance_Test() {
 		delete[] buffer;
 	}
 
+	// 최종 Closure를 확인해 accept, reject 판별
 	if (dat[table.numOfNode - 1] == 1)
 	{
 		printf("\nAccept\n");
