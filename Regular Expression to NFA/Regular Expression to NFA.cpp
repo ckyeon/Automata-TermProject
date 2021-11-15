@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
@@ -17,10 +16,13 @@ struct nfaTable {
 } nfaStack[MAXSTACK];
 
 
+void push(struct nfaTable m);
+struct nfaTable pop();
 string read_Regular_Expression();
 string insert_Concatenation_Operator_and_Convert_Into_Postfix_Notation(string input_String);
 void Re_to_NFA(string converted_Input_String);
-
+void acceptance_Test();
+void print_Closure(int* dat);
 
 int top = -1;
 
@@ -74,6 +76,12 @@ string insert_Concatenation_Operator_and_Convert_Into_Postfix_Notation(string in
 			i++;
 
 			result += '|';
+		}
+
+		if (input_String[i] == '*')
+		{
+			result += input_String[i];
+			i++;
 		}
 
 		if (input_String[i] == 'a' || input_String[i] == 'b')
@@ -295,6 +303,117 @@ void Re_to_NFA(string converted_Input_String)
 	}
 }
 
+void acceptance_Test() {
+	struct nfaTable table = nfaStack[top];
+	int* dat{ new int[table.numOfNode] {} };
+	
+	string test_String;
+	cin >> test_String;
+
+	// 0 staate의 lambda-closure
+	dat[0] = 1;
+	for (int i = 0; i < table.numOfNode; i++)
+	{
+		if (dat[i] == 0)
+			continue;
+
+		int e0 = table.state[i].e[0];
+		int e1 = table.state[i].e[1];
+
+		if (e0 != -1)
+			dat[e0] = 1;
+
+		if (e1 != -1)
+			dat[e1] = 1;
+	}
+
+	printf("0 state의 lambda-closure");
+	printf("\n-----------------------------------------");
+	print_Closure(dat);
+
+	dat[0] = 0;
+	for (int j = 0; j < test_String.length(); j++)
+	{
+		int* buffer{ new int[table.numOfNode] {} };
+
+		for (int i = 0; i < table.numOfNode; i++)
+			buffer[i] = dat[i];
+
+		for (int i = 0; i < table.numOfNode; i++)
+		{
+			if (dat[i] == 0 && buffer[i] == 0)
+				continue;
+
+			int a = table.state[i].a;
+			int b = table.state[i].b;
+			int e0 = table.state[i].e[0];
+			int e1 = table.state[i].e[1];
+			
+			if (test_String[j] == 'a')
+				if (a != -1)
+					buffer[a] = 1;
+
+			if (test_String[j] == 'b')
+				if (b != -1)
+					buffer[b] = 1;
+
+			if (e0 != -1)
+				buffer[e0] = 1;
+
+			if (e1 != -1)
+				buffer[e1] = 1;
+
+			if (j == 0)
+				continue;
+
+			if (test_String[j - 1] == 'a' && test_String[j] == 'b')
+				if (a != -1)
+					buffer[a] = 0;
+
+			if (j == 3 && b == 9)
+				int i = 5;
+
+			if (test_String[j - 1] == 'b' && test_String[j] == 'a')
+				if (b != -1)
+					buffer[b] = 0;
+		}
+	
+		for (int i = 0; i < table.numOfNode; i++)
+		{
+			dat[i] = buffer[i];
+		}
+
+		printf("\n%c state의 lambda-closure", test_String[j]);
+		printf("\n-----------------------------------------");
+		print_Closure(dat);
+
+		delete[] buffer;
+	}
+
+	if (dat[table.numOfNode - 1] == 1)
+	{
+		printf("\nAccept\n");
+	}
+	else
+		printf("\nreject\n");
+
+
+	delete[] dat;
+}
+
+void print_Closure(int* dat) {
+	printf("\n|");
+	for (int i = 0; i < nfaStack[top].numOfNode; i++)
+	{
+		printf(" %d |", i);
+	}
+
+	printf("\n-----------------------------------------\n|");
+	for (int i = 0; i < nfaStack[top].numOfNode; i++)
+		printf(" %d |", dat[i]);
+	printf("\n-----------------------------------------\n");
+}
+
 int main(void) 
 {
 	string converted_Input_String = read_Regular_Expression();
@@ -311,6 +430,9 @@ int main(void)
 			nfaStack[top].state[i].e[0], nfaStack[top].state[i].e[1],
 			nfaStack[top].state[i].output);
 	}
+	printf("\n\n");
+
+	acceptance_Test();
 
 	return 0;
 }
