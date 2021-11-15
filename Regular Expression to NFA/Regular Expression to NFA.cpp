@@ -26,7 +26,7 @@ void print_Closure(int* dat);
 
 int top = -1;
 
-void push(struct nfaTable m) 
+void push(struct nfaTable m)
 {
 	top++;
 	nfaStack[top] = m;
@@ -40,12 +40,12 @@ string read_Regular_Expression()
 {
 	string input_String;
 	string converted_Input_String;
-	
+
 	cin >> input_String;
 	converted_Input_String = insert_Concatenation_Operator_and_Convert_Into_Postfix_Notation(input_String);
 
 	return converted_Input_String;
-}  
+}
 
 string insert_Concatenation_Operator_and_Convert_Into_Postfix_Notation(string input_String)
 {
@@ -54,11 +54,13 @@ string insert_Concatenation_Operator_and_Convert_Into_Postfix_Notation(string in
 	int i = 0;
 	while (i < input_String.length())
 	{
+		// (a)^*에서 ^가 들어왔을 경우 continue
 		if (input_String[i] == '^') {
 			i++;
 			continue;
 		}
 
+		// (가 열리면 안의 내용을 한번에 처리
 		if (input_String[i] == '(')
 		{
 			i++;
@@ -78,12 +80,14 @@ string insert_Concatenation_Operator_and_Convert_Into_Postfix_Notation(string in
 			result += '|';
 		}
 
+		// *는 바로 추가
 		if (input_String[i] == '*')
 		{
 			result += input_String[i];
 			i++;
 		}
 
+		// a와 b는 뒤에 . 추가
 		if (input_String[i] == 'a' || input_String[i] == 'b')
 		{
 			result += input_String[i];
@@ -95,14 +99,14 @@ string insert_Concatenation_Operator_and_Convert_Into_Postfix_Notation(string in
 	return result;
 }
 
-void Re_to_NFA(string converted_Input_String) 
+void Re_to_NFA(string converted_Input_String)
 {
-	for (int i = 0; i < converted_Input_String.length(); i++) 
+	for (int i = 0; i < converted_Input_String.length(); i++)
 	{
 		if (converted_Input_String[i] == 'a')
 		{
 			struct nfaTable a;
-			
+
 			a.numOfNode = 2;
 			a.state[0] = { 1, -1, -1, -1, 0 };
 			a.state[1] = { -1, -1, -1, -1, 1 };
@@ -154,14 +158,14 @@ void Re_to_NFA(string converted_Input_String)
 				M1.state[i].e[1] += (e1 != -1) ? 1 : 0;
 
 				// initial state 때문에 i + 1 부터 복사
-				M3.state[i + 1] = M1.state[i];	
+				M3.state[i + 1] = M1.state[i];
 			}
 
 			// n(M1) Node에서 n(M1) + n(M2) + 1 Node로 lambda edge 삽입
 			if (M3.state[M1.numOfNode].e[0] == -1)
 				M3.state[M1.numOfNode].e[0] = M1.numOfNode + M2.numOfNode + 1;
 			else
-				M3.state[M1.numOfNode].e[1] = M1.numOfNode + M2.numOfNode + 1;	
+				M3.state[M1.numOfNode].e[1] = M1.numOfNode + M2.numOfNode + 1;
 			// n(M1) Node를 nonfinal로 변경
 			M3.state[M1.numOfNode].output = 0;
 
@@ -179,7 +183,7 @@ void Re_to_NFA(string converted_Input_String)
 				M2.state[i].e[1] += (e1 != -1) ? (M1.numOfNode + 1) : 0;
 
 				// M1과 initial state 때문에 i + n(M1) + 1 부터 복사
-				M3.state[i + M1.numOfNode + 1] = M2.state[i]; 
+				M3.state[i + M1.numOfNode + 1] = M2.state[i];
 			}
 
 			// n(M1) + n(M2) Node에서 n(M1) + n(M2) + 1 Node로 lambda edge 삽입
@@ -241,8 +245,8 @@ void Re_to_NFA(string converted_Input_String)
 
 			// n(M1) + n(M2) - 2 Node를 final state로 설정
 			M3.state[M1.numOfNode + M2.numOfNode - 2] = { -1, -1, { -1, -1 }, 1 };
-		
-		
+
+
 			// nfaStack에 push
 			push(M3);
 		}
@@ -292,7 +296,7 @@ void Re_to_NFA(string converted_Input_String)
 				M3.state[M1.numOfNode].e[1] = M1.numOfNode + 1;
 			// n(M1) Node를 nonfinal로 변경
 			M3.state[M1.numOfNode].output = 0;
-			
+
 			// n(M1) + 1 Node를 final state로 설정
 			M3.state[M1.numOfNode + 1] = { -1, -1, { -1, -1 }, 1 };
 
@@ -309,7 +313,7 @@ void acceptance_Test() {
 
 	// 갈 수 있는 Node를 기록하는 dat 배열
 	int* dat{ new int[table.numOfNode] {} };
-	
+
 	// 입력할 String
 	string test_String;
 	cin >> test_String;
@@ -356,7 +360,7 @@ void acceptance_Test() {
 			int b = table.state[i].b;
 			int e0 = table.state[i].e[0];
 			int e1 = table.state[i].e[1];
-			
+
 			if (test_String[j] == 'a')
 				if (a != -1)
 					buffer[a] = 1;
@@ -384,7 +388,7 @@ void acceptance_Test() {
 				if (b != -1)
 					buffer[b] = 0;
 		}
-	
+
 		// buffer에 기록뒨 Closure dat에 기록
 		for (int i = 0; i < table.numOfNode; i++)
 		{
@@ -423,7 +427,7 @@ void print_Closure(int* dat) {
 	printf("\n-----------------------------------------\n");
 }
 
-int main(void) 
+int main(void)
 {
 	string converted_Input_String = read_Regular_Expression();
 	Re_to_NFA(converted_Input_String);
@@ -434,7 +438,7 @@ int main(void)
 	printf("| state |  a  |  b  | e[0] | e[1] | output |\n");
 	for (int i = 0; i < nfaStack[top].numOfNode; i++)
 	{
-		printf("|   %d   |  %2d |  %2d |  %2d  |  %2d  |   %2d   |\n", i, 
+		printf("|   %d   |  %2d |  %2d |  %2d  |  %2d  |   %2d   |\n", i,
 			nfaStack[top].state[i].a, nfaStack[top].state[i].b,
 			nfaStack[top].state[i].e[0], nfaStack[top].state[i].e[1],
 			nfaStack[top].state[i].output);
